@@ -3,6 +3,9 @@
 .workspace
 .buildpath
 
+# Test files
+benchmarks.test
+
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
 *.a
