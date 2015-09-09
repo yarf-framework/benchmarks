@@ -5,11 +5,11 @@ This are several benchmarks made to see how YARF performs under different condit
 
 ### Frameworks used for comparision 
 
-- [HttpRouter](github.com/julienschmidt/httprouter)
-- [Goji](github.com/zenazn/goji)
-- [Gorilla Mux](github.com/gorilla/mux)
-- [Martini](github.com/go-martini/martini)
-- [Gin](github.com/gin-gonic/gin)
+- [HttpRouter](https://github.com/julienschmidt/httprouter)
+- [Goji](https://github.com/zenazn/goji)
+- [Gorilla Mux](https://github.com/gorilla/mux)
+- [Martini](https://github.com/go-martini/martini)
+- [Gin](https://github.com/gin-gonic/gin)
 
 
 ### Running the benchmarks
