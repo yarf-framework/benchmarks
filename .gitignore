@@ -2,6 +2,7 @@
 .project
 .workspace
 .buildpath
+.settings
 
 # Test files
 benchmarks.test
