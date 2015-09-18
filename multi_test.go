@@ -62,8 +62,12 @@ func BenchmarkMultiYarf(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for a := 0; a < 10; a++ {
 		    for b := 0; b < 10; b++ {
-		        req.URL, _ = url.Parse("http://localhost:8080/hello/some/thing/" + strconv.Itoa(a) + "/" + strconv.Itoa(b))
-		        y.ServeHTTP(res, req)
+		        for c := 0; c < 10; c++ {
+		            for d := 0; d < 10; d++ {
+		                req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
+        		        y.ServeHTTP(res, req)
+		            }
+		        }
 		    }
 		}
 	}
@@ -78,10 +82,14 @@ func BenchmarkMultiHttpRouter(b *testing.B) {
 
 	// Run benchmark
 	for i := 0; i < b.N; i++ {
-	    for a := 0; a < 10; a++ {
+		for a := 0; a < 10; a++ {
 		    for b := 0; b < 10; b++ {
-		        req.URL, _ = url.Parse("http://localhost:8080/hello/some/thing/" + strconv.Itoa(a) + "/" + strconv.Itoa(b))
-		        router.ServeHTTP(res, req)
+		        for c := 0; c < 10; c++ {
+		            for d := 0; d < 10; d++ {
+		                req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
+		                router.ServeHTTP(res, req)
+	                }
+	            }
 		    }
 		}
 	}
@@ -96,10 +104,14 @@ func BenchmarkMultiGoji(b *testing.B) {
 
 	// Run benchmark
 	for i := 0; i < b.N; i++ {
-	    for a := 0; a < 10; a++ {
+		for a := 0; a < 10; a++ {
 		    for b := 0; b < 10; b++ {
-		        req.URL, _ = url.Parse("http://localhost:8080/hello/some/thing/" + strconv.Itoa(a) + "/" + strconv.Itoa(b))
-		        g.ServeHTTP(res, req)
+		        for c := 0; c < 10; c++ {
+		            for d := 0; d < 10; d++ {
+		                req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
+		                g.ServeHTTP(res, req)
+	                }
+	            }
 		    }
 		}
 	}
@@ -114,10 +126,14 @@ func BenchmarkMultiGorilla(b *testing.B) {
 
 	// Run benchmark
 	for i := 0; i < b.N; i++ {
-	    for a := 0; a < 10; a++ {
+		for a := 0; a < 10; a++ {
 		    for b := 0; b < 10; b++ {
-		        req.URL, _ = url.Parse("http://localhost:8080/hello/some/thing/" + strconv.Itoa(a) + "/" + strconv.Itoa(b))
-		        m.ServeHTTP(res, req)
+		        for c := 0; c < 10; c++ {
+		            for d := 0; d < 10; d++ {
+		                req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
+		                m.ServeHTTP(res, req)
+	                }
+	            }
 		    }
 		}
 	}
@@ -134,10 +150,14 @@ func BenchmarkMultiMartini(b *testing.B) {
 
 	// Run benchmark
 	for i := 0; i < b.N; i++ {
-	    for a := 0; a < 10; a++ {
+		for a := 0; a < 10; a++ {
 		    for b := 0; b < 10; b++ {
-		        req.URL, _ = url.Parse("http://localhost:8080/hello/some/thing/" + strconv.Itoa(a) + "/" + strconv.Itoa(b))
-		        m.ServeHTTP(res, req)
+		        for c := 0; c < 10; c++ {
+		            for d := 0; d < 10; d++ {
+		                req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
+		                m.ServeHTTP(res, req)
+	                }
+	            }
 		    }
 		}
 	}
@@ -154,10 +174,14 @@ func BenchmarkMultiGin(b *testing.B) {
 	
 	// Run benchmark
 	for i := 0; i < b.N; i++ {
-	    for a := 0; a < 10; a++ {
+		for a := 0; a < 10; a++ {
 		    for b := 0; b < 10; b++ {
-		        req.URL, _ = url.Parse("http://localhost:8080/hello/some/thing/" + strconv.Itoa(a) + "/" + strconv.Itoa(b))
-		        r.ServeHTTP(res, req)
+		        for c := 0; c < 10; c++ {
+		            for d := 0; d < 10; d++ {
+		                req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
+		                r.ServeHTTP(res, req)
+	                }
+	            }
 		    }
 		}
 	}
