@@ -1,11 +1,11 @@
 package benchmarks
 
 import (
-    "net/http"
+	"net/http"
 	"net/http/httptest"
 	"testing"
-	
-    "github.com/yarf-framework/yarf"
+
+	"github.com/yarf-framework/yarf"
 )
 
 // Yarf
