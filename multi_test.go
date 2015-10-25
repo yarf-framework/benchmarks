@@ -21,8 +21,8 @@ type YarfMulti struct {
 	yarf.Resource
 }
 
-func (y *YarfMulti) Get() error {
-	y.Render("Hello " + y.Param("name1") + "," + y.Param("name2") + "," + y.Param("name3") + "," + y.Param("name4"))
+func (y *YarfMulti) Get(c *yarf.Context) error {
+	c.Render("Hello " + c.Param("name1") + "," + c.Param("name2") + "," + c.Param("name3") + "," + c.Param("name4"))
 
 	return nil
 }

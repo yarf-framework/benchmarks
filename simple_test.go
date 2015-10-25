@@ -19,8 +19,8 @@ type YarfHello struct {
 	yarf.Resource
 }
 
-func (y *YarfHello) Get() error {
-	y.Render("Hello world!")
+func (y *YarfHello) Get(c *yarf.Context) error {
+	c.Render("Hello world!")
 
 	return nil
 }

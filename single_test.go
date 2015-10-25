@@ -13,8 +13,8 @@ type YarfSingle struct {
 	yarf.Resource
 }
 
-func (y *YarfSingle) Get() error {
-	y.Render("Hello world!")
+func (y *YarfSingle) Get(c *yarf.Context) error {
+	c.Render("Hello world!")
 
 	return nil
 }

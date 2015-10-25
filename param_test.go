@@ -19,8 +19,8 @@ type YarfParam struct {
 	yarf.Resource
 }
 
-func (y *YarfParam) Get() error {
-	y.Render("Hello, " + y.Param("name"))
+func (y *YarfParam) Get(c *yarf.Context) error {
+	c.Render("Hello, " + c.Param("name"))
 
 	return nil
 }
