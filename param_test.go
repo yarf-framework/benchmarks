@@ -55,16 +55,34 @@ func PatParam(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("Hello, " + req.URL.Query().Get(":name")))
 }
 
+func generateParamRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.Request) {
+	responses := make([]*httptest.ResponseRecorder, b.N)
+	requests := make([]*http.Request, b.N)
+
+	for i := 0; i < b.N; i++ {
+		responses[i] = httptest.NewRecorder()
+
+		req, err := http.NewRequest("GET", "http://localhost:8080/hello/Joe", nil)
+		if err != nil {
+			b.Logf("got unexpected error: %q", err.Error())
+			b.Fail()
+		}
+		requests[i] = req
+	}
+
+	return responses, requests
+}
+
 // Benchmarks
 func BenchmarkParamYarf(b *testing.B) {
 	y := yarf.New()
 	y.Add("/hello/:name", new(YarfParam))
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello/Joe", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		y.ServeHTTP(res, req)
+		y.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -72,12 +90,11 @@ func BenchmarkParamHttpRouter(b *testing.B) {
 	router := httprouter.New()
 	router.GET("/hello/:name", HttpRouterParam)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello/Joe", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		router.ServeHTTP(res, req)
+		router.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -85,12 +102,11 @@ func BenchmarkParamGoji(b *testing.B) {
 	g := web.New()
 	g.Get("/hello/:name", GojiParam)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello/Joe", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		g.ServeHTTP(res, req)
+		g.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -98,12 +114,11 @@ func BenchmarkParamGorilla(b *testing.B) {
 	m := mux.NewRouter()
 	m.HandleFunc("/hello/{name}", GorillaParam)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello/Joe", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(res, req)
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -113,12 +128,11 @@ func BenchmarkParamMartini(b *testing.B) {
 	r.Get("/hello/:name", MartiniParam)
 	m.Action(r.Handle)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello/Joe", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(res, req)
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -128,12 +142,11 @@ func BenchmarkParamGin(b *testing.B) {
 	r := gin.New()
 	r.GET("/hello/:name", GinParam)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello/Joe", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		r.ServeHTTP(res, req)
+		r.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -141,11 +154,10 @@ func BenchmarkParamPat(b *testing.B) {
 	m := pat.New()
 	m.Get("/", http.HandlerFunc(PatParam))
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello/Joe", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(res, req)
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }

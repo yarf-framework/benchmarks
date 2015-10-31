@@ -3,7 +3,6 @@ package benchmarks
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strconv"
 	"testing"
 
@@ -57,25 +56,34 @@ func PatMulti(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("Hello, " + req.URL.Query().Get(":name1") + req.URL.Query().Get(":name2") + req.URL.Query().Get(":name3") + req.URL.Query().Get(":name4")))
 }
 
+func generateMultiRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.Request) {
+	responses := make([]*httptest.ResponseRecorder, b.N)
+	requests := make([]*http.Request, b.N)
+
+	for i := 0; i < b.N; i++ {
+		responses[i] = httptest.NewRecorder()
+
+		req, err := http.NewRequest("GET", "http://localhost:8080/hello/"+strconv.Itoa(i)+"/"+strconv.Itoa(i)+"/"+strconv.Itoa(i)+"/"+strconv.Itoa(i), nil)
+		if err != nil {
+			b.Logf("got unexpected error: %q", err.Error())
+			b.Fail()
+		}
+		requests[i] = req
+	}
+
+	return responses, requests
+}
+
 // Benchmarks
 func BenchmarkMultiYarf(b *testing.B) {
 	y := yarf.New()
 	y.Add("/hello/:name1/:name2/:name3/:name4", new(YarfMulti))
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < 10; a++ {
-			for b := 0; b < 10; b++ {
-				for c := 0; c < 10; c++ {
-					for d := 0; d < 10; d++ {
-						req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
-						y.ServeHTTP(res, req)
-					}
-				}
-			}
-		}
+		y.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -83,21 +91,11 @@ func BenchmarkMultiHttpRouter(b *testing.B) {
 	router := httprouter.New()
 	router.GET("/hello/:name1/:name2/:name3/:name4", HttpRouterMulti)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < 10; a++ {
-			for b := 0; b < 10; b++ {
-				for c := 0; c < 10; c++ {
-					for d := 0; d < 10; d++ {
-						req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
-						router.ServeHTTP(res, req)
-					}
-				}
-			}
-		}
+		router.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -105,21 +103,11 @@ func BenchmarkMultiGoji(b *testing.B) {
 	g := web.New()
 	g.Get("/hello/:name1/:name2/:name3/:name4", GojiMulti)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < 10; a++ {
-			for b := 0; b < 10; b++ {
-				for c := 0; c < 10; c++ {
-					for d := 0; d < 10; d++ {
-						req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
-						g.ServeHTTP(res, req)
-					}
-				}
-			}
-		}
+		g.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -127,21 +115,11 @@ func BenchmarkMultiGorilla(b *testing.B) {
 	m := mux.NewRouter()
 	m.HandleFunc("/hello/{name1}/{name2}/{name3}/{name4}", GorillaMulti)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < 10; a++ {
-			for b := 0; b < 10; b++ {
-				for c := 0; c < 10; c++ {
-					for d := 0; d < 10; d++ {
-						req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
-						m.ServeHTTP(res, req)
-					}
-				}
-			}
-		}
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -151,21 +129,11 @@ func BenchmarkMultiMartini(b *testing.B) {
 	r.Get("/hello/:name1/:name2/:name3/:name4", MartiniMulti)
 	m.Action(r.Handle)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < 10; a++ {
-			for b := 0; b < 10; b++ {
-				for c := 0; c < 10; c++ {
-					for d := 0; d < 10; d++ {
-						req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
-						m.ServeHTTP(res, req)
-					}
-				}
-			}
-		}
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -175,21 +143,11 @@ func BenchmarkMultiGin(b *testing.B) {
 	r := gin.New()
 	r.GET("/hello/:name1/:name2/:name3/:name4", GinMulti)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < 10; a++ {
-			for b := 0; b < 10; b++ {
-				for c := 0; c < 10; c++ {
-					for d := 0; d < 10; d++ {
-						req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
-						r.ServeHTTP(res, req)
-					}
-				}
-			}
-		}
+		r.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -197,20 +155,10 @@ func BenchmarkMultiPat(b *testing.B) {
 	m := pat.New()
 	m.Get("/", http.HandlerFunc(PatMulti))
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/hello", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < 10; a++ {
-			for b := 0; b < 10; b++ {
-				for c := 0; c < 10; c++ {
-					for d := 0; d < 10; d++ {
-						req.URL, _ = url.Parse("http://localhost:8080/hello/" + strconv.Itoa(a) + "/" + strconv.Itoa(b) + "/" + strconv.Itoa(c) + "/" + strconv.Itoa(d))
-						m.ServeHTTP(res, req)
-					}
-				}
-			}
-		}
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }
