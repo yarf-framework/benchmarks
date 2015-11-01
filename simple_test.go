@@ -45,16 +45,34 @@ func GinHello(c *gin.Context) {
 	c.String(200, "Hello world!")
 }
 
+func generateSimpleRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.Request) {
+	responses := make([]*httptest.ResponseRecorder, b.N)
+	requests := make([]*http.Request, b.N)
+
+	for i := 0; i < b.N; i++ {
+		responses[i] = httptest.NewRecorder()
+
+		req, err := http.NewRequest("GET", "http://localhost:8080/", nil)
+		if err != nil {
+			b.Logf("got unexpected error: %q", err.Error())
+			b.Fail()
+		}
+		requests[i] = req
+	}
+
+	return responses, requests
+}
+
 // Benchmarks
 func BenchmarkSimpleYarf(b *testing.B) {
 	y := yarf.New()
 	y.Add("/", new(YarfHello))
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		y.ServeHTTP(res, req)
+		y.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -62,12 +80,11 @@ func BenchmarkSimpleHttpRouter(b *testing.B) {
 	router := httprouter.New()
 	router.GET("/", HttpRouterHello)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		router.ServeHTTP(res, req)
+		router.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -75,12 +92,11 @@ func BenchmarkSimpleGoji(b *testing.B) {
 	g := web.New()
 	g.Get("/", GojiHello)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		g.ServeHTTP(res, req)
+		g.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -88,12 +104,11 @@ func BenchmarkSimpleGorilla(b *testing.B) {
 	m := mux.NewRouter()
 	m.HandleFunc("/", HttpHello)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(res, req)
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -103,12 +118,11 @@ func BenchmarkSimpleMartini(b *testing.B) {
 	r.Get("/", HttpHello)
 	m.Action(r.Handle)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(res, req)
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -118,12 +132,11 @@ func BenchmarkSimpleGin(b *testing.B) {
 	r := gin.New()
 	r.GET("/", GinHello)
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		r.ServeHTTP(res, req)
+		r.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -131,11 +144,10 @@ func BenchmarkSimplePat(b *testing.B) {
 	m := pat.New()
 	m.Get("/", http.HandlerFunc(HttpHello))
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
 
-	// Run benchmark
 	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(res, req)
+		m.ServeHTTP(responses[i], requests[i])
 	}
 }

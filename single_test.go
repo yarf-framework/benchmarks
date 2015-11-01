@@ -1,8 +1,6 @@
 package benchmarks
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/yarf-framework/yarf"
@@ -23,10 +21,10 @@ func BenchmarkSingleYarf(b *testing.B) {
 	y := yarf.New()
 	y.Add("/", new(YarfSingle))
 
-	req, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	res := httptest.NewRecorder()
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		y.ServeHTTP(res, req)
+		y.ServeHTTP(responses[i], requests[i])
 	}
 }
