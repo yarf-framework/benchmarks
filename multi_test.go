@@ -87,6 +87,24 @@ func BenchmarkMultiYarf(b *testing.B) {
 	}
 }
 
+func BenchmarkMultiYarfCached(b *testing.B) {
+	y := yarf.New()
+	y.Add("/hello/:name1/:name2/:name3/:name4", new(YarfMulti))
+
+	responses, requests := generateMultiRequests(b)
+	
+	// Warmup
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
+	}
+	
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
+	}
+}
+
 func BenchmarkMultiHttpRouter(b *testing.B) {
 	router := httprouter.New()
 	router.GET("/hello/:name1/:name2/:name3/:name4", HttpRouterMulti)
