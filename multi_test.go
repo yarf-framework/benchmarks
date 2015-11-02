@@ -77,6 +77,7 @@ func generateMultiRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.
 // Benchmarks
 func BenchmarkMultiYarf(b *testing.B) {
 	y := yarf.New()
+	y.UseCache = false
 	y.Add("/hello/:name1/:name2/:name3/:name4", new(YarfMulti))
 
 	responses, requests := generateMultiRequests(b)
