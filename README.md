@@ -31,26 +31,26 @@ To run the benchmarks yourself simply clone this repository, step into the root 
 ### Benchmark results (totally subjective to local hardware configuration)
 
 ```
-BenchmarkMultiYarf-8          500000          2539 ns/op         892 B/op         13 allocs/op
-BenchmarkMultiYarfCached-8   1000000          1479 ns/op         375 B/op          4 allocs/op
-BenchmarkMultiHttpRouter-8   3000000           873 ns/op         221 B/op          2 allocs/op
-BenchmarkMultiGoji-8         1000000          1413 ns/op         425 B/op          3 allocs/op
-BenchmarkMultiGorilla-8       200000          5984 ns/op        1088 B/op         18 allocs/op
-BenchmarkMultiMartini-8       200000          6370 ns/op        1376 B/op         16 allocs/op
-BenchmarkMultiGin-8          2000000          1039 ns/op         446 B/op          3 allocs/op
-BenchmarkMultiPat-8          1000000          1504 ns/op         624 B/op          9 allocs/op
-BenchmarkParamYarf-8         3000000           537 ns/op         144 B/op          3 allocs/op
-BenchmarkParamHttpRouter-8   5000000           305 ns/op          48 B/op          2 allocs/op
-BenchmarkParamGoji-8         2000000           793 ns/op         352 B/op          3 allocs/op
-BenchmarkParamGorilla-8       500000          2733 ns/op         848 B/op         12 allocs/op
-BenchmarkParamMartini-8       300000          5295 ns/op        1232 B/op         16 allocs/op
-BenchmarkParamGin-8          2000000           671 ns/op         384 B/op          3 allocs/op
-BenchmarkParamPat-8          1000000          1657 ns/op         624 B/op          9 allocs/op
-BenchmarkSimpleYarf-8        3000000           464 ns/op         144 B/op          3 allocs/op
-BenchmarkSimpleHttpRouter-8 10000000           168 ns/op          16 B/op          1 allocs/op
-BenchmarkSimpleGoji-8        5000000           316 ns/op          16 B/op          1 allocs/op
-BenchmarkSimpleGorilla-8     1000000          1644 ns/op         496 B/op          9 allocs/op
-BenchmarkSimpleMartini-8      300000          4231 ns/op         848 B/op         12 allocs/op
-BenchmarkSimpleGin-8         2000000           599 ns/op         368 B/op          2 allocs/op
-BenchmarkSimplePat-8         5000000           245 ns/op          64 B/op          2 allocs/op
+BenchmarkMultiYarf-8          500000          3595 ns/op        1260 B/op         15 allocs/op
+BenchmarkMultiYarfCached-8   1000000          1702 ns/op         375 B/op          4 allocs/op
+BenchmarkMultiHttpRouter-8   1000000          1595 ns/op         585 B/op          4 allocs/op
+BenchmarkMultiGoji-8          500000          2233 ns/op         787 B/op          5 allocs/op
+BenchmarkMultiGorilla-8       200000          6524 ns/op        1328 B/op         20 allocs/op
+BenchmarkMultiMartini-8       200000          5846 ns/op        1376 B/op         16 allocs/op
+BenchmarkMultiGin-8          2000000           987 ns/op         399 B/op          2 allocs/op
+BenchmarkMultiPat-8          1000000          1478 ns/op         624 B/op          9 allocs/op
+BenchmarkParamYarf-8         1000000          1583 ns/op         512 B/op          5 allocs/op
+BenchmarkParamHttpRouter-8   1000000          1261 ns/op         416 B/op          4 allocs/op
+BenchmarkParamGoji-8         1000000          1831 ns/op         720 B/op          5 allocs/op
+BenchmarkParamGorilla-8       500000          3486 ns/op        1176 B/op         14 allocs/op
+BenchmarkParamMartini-8       300000          4605 ns/op        1232 B/op         16 allocs/op
+BenchmarkParamGin-8          2000000           571 ns/op         368 B/op          2 allocs/op
+BenchmarkParamPat-8          1000000          1444 ns/op         624 B/op          9 allocs/op
+BenchmarkSimpleYarf-8        1000000          1476 ns/op         512 B/op          5 allocs/op
+BenchmarkSimpleHttpRouter-8  1000000          1143 ns/op         384 B/op          3 allocs/op
+BenchmarkSimpleGoji-8        1000000          1311 ns/op         384 B/op          3 allocs/op
+BenchmarkSimpleGorilla-8      500000          2650 ns/op         848 B/op         11 allocs/op
+BenchmarkSimpleMartini-8      300000          3858 ns/op         848 B/op         12 allocs/op
+BenchmarkSimpleGin-8         3000000           633 ns/op         352 B/op          1 allocs/op
+BenchmarkSimplePat-8         1000000          1196 ns/op         432 B/op          4 allocs/op
 ```
