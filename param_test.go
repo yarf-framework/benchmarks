@@ -76,11 +76,30 @@ func generateParamRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.
 // Benchmarks
 func BenchmarkParamYarf(b *testing.B) {
 	y := yarf.New()
+	y.UseCache = false
 	y.Add("/hello/:name", new(YarfParam))
 
 	responses, requests := generateParamRequests(b)
 	b.ResetTimer()
 
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkParamYarfCached(b *testing.B) {
+	y := yarf.New()
+	y.Add("/hello/:name", new(YarfParam))
+
+	responses, requests := generateParamRequests(b)
+	
+    // Warmup
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
+	}
+	
+	b.ResetTimer()
+	
 	for i := 0; i < b.N; i++ {
 		y.ServeHTTP(responses[i], requests[i])
 	}

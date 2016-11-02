@@ -66,11 +66,30 @@ func generateSimpleRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http
 // Benchmarks
 func BenchmarkSimpleYarf(b *testing.B) {
 	y := yarf.New()
+	y.UseCache = false
 	y.Add("/", new(YarfHello))
 
 	responses, requests := generateSimpleRequests(b)
 	b.ResetTimer()
 
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
+	}
+	
+	b.ResetTimer()
+	
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkSimpleYarfCached(b *testing.B) {
+	y := yarf.New()
+	y.Add("/", new(YarfHello))
+
+	responses, requests := generateSimpleRequests(b)
+	
+    // Warmup
 	for i := 0; i < b.N; i++ {
 		y.ServeHTTP(responses[i], requests[i])
 	}
