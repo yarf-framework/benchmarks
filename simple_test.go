@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bellavista/router"
 	"github.com/bmizerany/pat"
 	"github.com/gin-gonic/gin"
 	"github.com/go-martini/martini"
@@ -45,6 +46,11 @@ func GinHello(c *gin.Context) {
 	c.String(200, "Hello world!")
 }
 
+// BellaVista
+func BVHello(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello world!"))
+}
+
 func generateSimpleRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.Request) {
 	responses := make([]*httptest.ResponseRecorder, b.N)
 	requests := make([]*http.Request, b.N)
@@ -64,16 +70,17 @@ func generateSimpleRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http
 }
 
 // Benchmarks
-func BenchmarkSimpleYarf(b *testing.B) {
-	y := yarf.New()
-	y.UseCache = false
-	y.Add("/", new(YarfHello))
+
+func BenchmarkSimpleBV(b *testing.B) {
+	r := router.New("/")
+	r.Add("/", http.HandlerFunc(BVHello))
+	d := router.Route(r)
 
 	responses, requests := generateSimpleRequests(b)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		y.ServeHTTP(responses[i], requests[i])
+		d.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -82,66 +89,16 @@ func BenchmarkSimpleYarfCached(b *testing.B) {
 	y.Add("/", new(YarfHello))
 
 	responses, requests := generateSimpleRequests(b)
-	
-    // Warmup
+
+	// Warmup
 	for i := 0; i < b.N; i++ {
 		y.ServeHTTP(responses[i], requests[i])
 	}
-	
+
 	b.ResetTimer()
-	
+
 	for i := 0; i < b.N; i++ {
 		y.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkSimpleHttpRouter(b *testing.B) {
-	router := httprouter.New()
-	router.GET("/", HttpRouterHello)
-
-	responses, requests := generateSimpleRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		router.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkSimpleGoji(b *testing.B) {
-	g := web.New()
-	g.Get("/", GojiHello)
-
-	responses, requests := generateSimpleRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		g.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkSimpleGorilla(b *testing.B) {
-	m := mux.NewRouter()
-	m.HandleFunc("/", HttpHello)
-
-	responses, requests := generateSimpleRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkSimpleMartini(b *testing.B) {
-	r := martini.NewRouter()
-	m := martini.New()
-	r.Get("/", HttpHello)
-	m.Action(r.Handle)
-
-	responses, requests := generateSimpleRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -159,9 +116,72 @@ func BenchmarkSimpleGin(b *testing.B) {
 	}
 }
 
+func BenchmarkSimpleHttpRouter(b *testing.B) {
+	router := httprouter.New()
+	router.GET("/", HttpRouterHello)
+
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		router.ServeHTTP(responses[i], requests[i])
+	}
+}
+
 func BenchmarkSimplePat(b *testing.B) {
 	m := pat.New()
 	m.Get("/", http.HandlerFunc(HttpHello))
+
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		m.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkSimpleGoji(b *testing.B) {
+	g := web.New()
+	g.Get("/", GojiHello)
+
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		g.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkSimpleYarf(b *testing.B) {
+	y := yarf.New()
+	y.UseCache = false
+	y.Add("/", new(YarfHello))
+
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkSimpleMartini(b *testing.B) {
+	r := martini.NewRouter()
+	m := martini.New()
+	r.Get("/", HttpHello)
+	m.Action(r.Handle)
+
+	responses, requests := generateSimpleRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		m.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkSimpleGorilla(b *testing.B) {
+	m := mux.NewRouter()
+	m.HandleFunc("/", HttpHello)
 
 	responses, requests := generateSimpleRequests(b)
 	b.ResetTimer()

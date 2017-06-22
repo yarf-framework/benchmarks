@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bellavista/router"
 	"github.com/bmizerany/pat"
 	"github.com/gin-gonic/gin"
 	"github.com/go-martini/martini"
@@ -23,6 +24,11 @@ func (y *YarfParam) Get(c *yarf.Context) error {
 	c.Render("Hello, " + c.Param("name"))
 
 	return nil
+}
+
+// Bella Vista
+func BVParam(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello " + router.GetString(r, "name1")))
 }
 
 // HttpRouter
@@ -74,16 +80,17 @@ func generateParamRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.
 }
 
 // Benchmarks
-func BenchmarkParamYarf(b *testing.B) {
-	y := yarf.New()
-	y.UseCache = false
-	y.Add("/hello/:name", new(YarfParam))
 
-	responses, requests := generateParamRequests(b)
+func BenchmarkParamBV(b *testing.B) {
+	r := router.New("/")
+	r.Add("/hello/:name", http.HandlerFunc(BVHello))
+	d := router.Route(r)
+
+	responses, requests := generateSimpleRequests(b)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		y.ServeHTTP(responses[i], requests[i])
+		d.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -92,66 +99,16 @@ func BenchmarkParamYarfCached(b *testing.B) {
 	y.Add("/hello/:name", new(YarfParam))
 
 	responses, requests := generateParamRequests(b)
-	
-    // Warmup
+
+	// Warmup
 	for i := 0; i < b.N; i++ {
 		y.ServeHTTP(responses[i], requests[i])
 	}
-	
+
 	b.ResetTimer()
-	
+
 	for i := 0; i < b.N; i++ {
 		y.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkParamHttpRouter(b *testing.B) {
-	router := httprouter.New()
-	router.GET("/hello/:name", HttpRouterParam)
-
-	responses, requests := generateParamRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		router.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkParamGoji(b *testing.B) {
-	g := web.New()
-	g.Get("/hello/:name", GojiParam)
-
-	responses, requests := generateParamRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		g.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkParamGorilla(b *testing.B) {
-	m := mux.NewRouter()
-	m.HandleFunc("/hello/{name}", GorillaParam)
-
-	responses, requests := generateParamRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkParamMartini(b *testing.B) {
-	r := martini.NewRouter()
-	m := martini.New()
-	r.Get("/hello/:name", MartiniParam)
-	m.Action(r.Handle)
-
-	responses, requests := generateParamRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -169,9 +126,72 @@ func BenchmarkParamGin(b *testing.B) {
 	}
 }
 
+func BenchmarkParamHttpRouter(b *testing.B) {
+	router := httprouter.New()
+	router.GET("/hello/:name", HttpRouterParam)
+
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		router.ServeHTTP(responses[i], requests[i])
+	}
+}
+
 func BenchmarkParamPat(b *testing.B) {
 	m := pat.New()
 	m.Get("/", http.HandlerFunc(PatParam))
+
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		m.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkParamGoji(b *testing.B) {
+	g := web.New()
+	g.Get("/hello/:name", GojiParam)
+
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		g.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkParamYarf(b *testing.B) {
+	y := yarf.New()
+	y.UseCache = false
+	y.Add("/hello/:name", new(YarfParam))
+
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkParamMartini(b *testing.B) {
+	r := martini.NewRouter()
+	m := martini.New()
+	r.Get("/hello/:name", MartiniParam)
+	m.Action(r.Handle)
+
+	responses, requests := generateParamRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		m.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkParamGorilla(b *testing.B) {
+	m := mux.NewRouter()
+	m.HandleFunc("/hello/{name}", GorillaParam)
 
 	responses, requests := generateParamRequests(b)
 	b.ResetTimer()

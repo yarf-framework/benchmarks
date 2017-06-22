@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/bellavista/router"
 	"github.com/bmizerany/pat"
 	"github.com/gin-gonic/gin"
 	"github.com/go-martini/martini"
@@ -24,6 +25,11 @@ func (y *YarfMulti) Get(c *yarf.Context) error {
 	c.Render("Hello " + c.Param("name1") + "," + c.Param("name2") + "," + c.Param("name3") + "," + c.Param("name4"))
 
 	return nil
+}
+
+// Bella Vista
+func BellaVistaRouterMulti(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello " + router.GetString(r, "name1") + "," + router.GetString(r, "name2") + "," + router.GetString(r, "name3") + "," + router.GetString(r, "name4")))
 }
 
 // HttpRouter
@@ -75,16 +81,16 @@ func generateMultiRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.
 }
 
 // Benchmarks
-func BenchmarkMultiYarf(b *testing.B) {
-	y := yarf.New()
-	y.UseCache = false
-	y.Add("/hello/:name1/:name2/:name3/:name4", new(YarfMulti))
+func BenchmarkMultiBellaVistaRouter(b *testing.B) {
+	r := router.New("/")
+	r.Add("/hello/:name1/:name2/:name3/:name4", http.HandlerFunc(BellaVistaRouterMulti))
+	d := router.Route(r)
 
-	responses, requests := generateMultiRequests(b)
+	responses, requests := generateSimpleRequests(b)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		y.ServeHTTP(responses[i], requests[i])
+		d.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -93,16 +99,30 @@ func BenchmarkMultiYarfCached(b *testing.B) {
 	y.Add("/hello/:name1/:name2/:name3/:name4", new(YarfMulti))
 
 	responses, requests := generateMultiRequests(b)
-	
+
 	// Warmup
 	for i := 0; i < b.N; i++ {
 		y.ServeHTTP(responses[i], requests[i])
 	}
-	
+
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		y.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkMultiGin(b *testing.B) {
+	gin.SetMode(gin.ReleaseMode)
+
+	r := gin.New()
+	r.GET("/hello/:name1/:name2/:name3/:name4", GinMulti)
+
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		r.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -118,6 +138,18 @@ func BenchmarkMultiHttpRouter(b *testing.B) {
 	}
 }
 
+func BenchmarkMultiPat(b *testing.B) {
+	m := pat.New()
+	m.Get("/", http.HandlerFunc(PatMulti))
+
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		m.ServeHTTP(responses[i], requests[i])
+	}
+}
+
 func BenchmarkMultiGoji(b *testing.B) {
 	g := web.New()
 	g.Get("/hello/:name1/:name2/:name3/:name4", GojiMulti)
@@ -127,6 +159,19 @@ func BenchmarkMultiGoji(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		g.ServeHTTP(responses[i], requests[i])
+	}
+}
+
+func BenchmarkMultiYarf(b *testing.B) {
+	y := yarf.New()
+	y.UseCache = false
+	y.Add("/hello/:name1/:name2/:name3/:name4", new(YarfMulti))
+
+	responses, requests := generateMultiRequests(b)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		y.ServeHTTP(responses[i], requests[i])
 	}
 }
 
@@ -147,32 +192,6 @@ func BenchmarkMultiMartini(b *testing.B) {
 	m := martini.New()
 	r.Get("/hello/:name1/:name2/:name3/:name4", MartiniMulti)
 	m.Action(r.Handle)
-
-	responses, requests := generateMultiRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		m.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkMultiGin(b *testing.B) {
-	gin.SetMode(gin.ReleaseMode)
-
-	r := gin.New()
-	r.GET("/hello/:name1/:name2/:name3/:name4", GinMulti)
-
-	responses, requests := generateMultiRequests(b)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		r.ServeHTTP(responses[i], requests[i])
-	}
-}
-
-func BenchmarkMultiPat(b *testing.B) {
-	m := pat.New()
-	m.Get("/", http.HandlerFunc(PatMulti))
 
 	responses, requests := generateMultiRequests(b)
 	b.ResetTimer()
