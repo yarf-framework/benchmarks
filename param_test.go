@@ -27,8 +27,8 @@ func (y *YarfParam) Get(c *yarf.Context) error {
 }
 
 // Bella Vista
-func BVParam(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello " + router.GetString(r, "name1")))
+func BellaVistaParam(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello " + router.GetString(r, "name")))
 }
 
 // HttpRouter
@@ -81,12 +81,12 @@ func generateParamRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.
 
 // Benchmarks
 
-func BenchmarkParamBV(b *testing.B) {
+func BenchmarkParamBellaVista(b *testing.B) {
 	r := router.New("/")
-	r.Add("/hello/:name", http.HandlerFunc(BVHello))
+	r.Add("/hello/:name", http.HandlerFunc(BellaVistaParam))
 	d := router.Route(r)
 
-	responses, requests := generateSimpleRequests(b)
+	responses, requests := generateParamRequests(b)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {

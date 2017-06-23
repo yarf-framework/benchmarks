@@ -1,10 +1,6 @@
 package benchmarks
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"testing"
-
 	"github.com/bellavista/router"
 	"github.com/bmizerany/pat"
 	"github.com/gin-gonic/gin"
@@ -13,6 +9,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/yarf-framework/yarf"
 	"github.com/zenazn/goji/web"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 // Yarf
@@ -46,11 +45,6 @@ func GinHello(c *gin.Context) {
 	c.String(200, "Hello world!")
 }
 
-// BellaVista
-func BVHello(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello world!"))
-}
-
 func generateSimpleRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.Request) {
 	responses := make([]*httptest.ResponseRecorder, b.N)
 	requests := make([]*http.Request, b.N)
@@ -71,9 +65,9 @@ func generateSimpleRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http
 
 // Benchmarks
 
-func BenchmarkSimpleBV(b *testing.B) {
+func BenchmarkSimpleBellaVista(b *testing.B) {
 	r := router.New("/")
-	r.Add("/", http.HandlerFunc(BVHello))
+	r.Add("/", http.HandlerFunc(HttpHello))
 	d := router.Route(r)
 
 	responses, requests := generateSimpleRequests(b)

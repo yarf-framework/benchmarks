@@ -28,7 +28,7 @@ func (y *YarfMulti) Get(c *yarf.Context) error {
 }
 
 // Bella Vista
-func BellaVistaRouterMulti(w http.ResponseWriter, r *http.Request) {
+func BellaVistaMulti(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello " + router.GetString(r, "name1") + "," + router.GetString(r, "name2") + "," + router.GetString(r, "name3") + "," + router.GetString(r, "name4")))
 }
 
@@ -81,12 +81,12 @@ func generateMultiRequests(b *testing.B) ([]*httptest.ResponseRecorder, []*http.
 }
 
 // Benchmarks
-func BenchmarkMultiBellaVistaRouter(b *testing.B) {
+func BenchmarkMultiBellaVista(b *testing.B) {
 	r := router.New("/")
-	r.Add("/hello/:name1/:name2/:name3/:name4", http.HandlerFunc(BellaVistaRouterMulti))
+	r.Add("/hello/:name1/:name2/:name3/:name4", http.HandlerFunc(BellaVistaMulti))
 	d := router.Route(r)
 
-	responses, requests := generateSimpleRequests(b)
+	responses, requests := generateMultiRequests(b)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
